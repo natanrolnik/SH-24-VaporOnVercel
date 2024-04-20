@@ -10,13 +10,19 @@ struct App: VaporHandler {
         }
 
         app.get("agenda") { _ -> String in
-            throw Abort(.notImplemented, reason: "Live coding!")
+            try await fetch("https://swiftheroes.com/swiftheroes-2024/schedule/v/final/widgets/schedule.json")
+                .decode(Agenda.self, decoder: Agenda.decoder)
+                .toTable()
         }
     }
 }
 
 extension Agenda {
     func toTable() throws -> String {
-        throw Abort(.notImplemented, reason: "Live coding!")
+        let entries = talks
+            .compactMap { talk in
+                talk.toTableEntry(speakersMap)
+            }
+        return try MarkEncoder().encode(entries)
     }
 }
